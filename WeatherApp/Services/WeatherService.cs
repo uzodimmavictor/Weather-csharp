@@ -88,9 +88,6 @@ namespace WeatherApp.Services
             }
         }
 
-        /// <summary>
-        /// Récupère les prévisions météo sur 5 jours
-        /// </summary>
         public async Task<ForecastData> GetForecastAsync(string cityName)
         {
             try

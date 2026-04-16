@@ -13,7 +13,6 @@ namespace WeatherApp.ViewModels
         private readonly WeatherService _weatherService;
         private readonly FavoritesService _favoritesService;
 
-        // Propriétés pour le binding
         private string _searchCity;
         private WeatherData _currentWeather;
         private ForecastData _forecastData;
