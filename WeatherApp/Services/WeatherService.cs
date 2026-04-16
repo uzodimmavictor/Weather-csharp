@@ -13,25 +13,33 @@ namespace WeatherApp.Services
     public class WeatherService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey;
         private const string BASE_URL = "https://api.openweathermap.org/data/2.5";
 
         public WeatherService()
         {
             _httpClient = new HttpClient();
-            _apiKey = LoadApiKey();
         }
 
-        private string LoadApiKey()
+        private string? GetApiKey()
         {
             string? apiKey = Environment.GetEnvironmentVariable("OPENWEATHER_API_KEY");
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.local.json");
-
-                if (File.Exists(configPath))
+                string[] candidatePaths =
                 {
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.local.json"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "appsettings.local.json"),
+                    Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "appsettings.local.json"))
+                };
+
+                foreach (string configPath in candidatePaths.Distinct())
+                {
+                    if (!File.Exists(configPath))
+                    {
+                        continue;
+                    }
+
                     string configJson = File.ReadAllText(configPath);
                     using JsonDocument doc = JsonDocument.Parse(configJson);
 
@@ -39,23 +47,36 @@ namespace WeatherApp.Services
                     {
                         apiKey = keyElement.GetString();
                     }
+
+                    if (!string.IsNullOrWhiteSpace(apiKey))
+                    {
+                        break;
+                    }
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(apiKey))
+            return apiKey;
+        }
+
+        private static void EnsureApiKeyConfigured(string? apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey) || string.Equals(apiKey, "votre_cle_api_ici", StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
-                    "Clé API manquante. Définissez OPENWEATHER_API_KEY ou créez appsettings.local.json avec OpenWeatherApiKey.");
+                    "Clé API manquante ou invalide. Définissez OPENWEATHER_API_KEY ou mettez une vraie clé dans appsettings.local.json (OpenWeatherApiKey)."
+                );
             }
-
-            return apiKey;
         }
 
         public async Task<WeatherData> GetCurrentWeatherAsync(string cityName)
         {
             try
             {
-                string url = $"{BASE_URL}/weather?q={cityName}&appid={_apiKey}&units=metric&lang=fr";
+                string? apiKey = GetApiKey();
+                EnsureApiKeyConfigured(apiKey);
+
+                string encodedCity = Uri.EscapeDataString(cityName);
+                string url = $"{BASE_URL}/weather?q={encodedCity}&appid={apiKey}&units=metric&lang=fr";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -64,7 +85,13 @@ namespace WeatherApp.Services
                 }
 
                 string json = await response.Content.ReadAsStringAsync();
-                OpenWeatherResponse apiResponse = JsonConvert.DeserializeObject<OpenWeatherResponse>(json);
+                OpenWeatherResponse apiResponse = JsonConvert.DeserializeObject<OpenWeatherResponse>(json)
+                    ?? throw new Exception("Réponse API invalide pour la météo actuelle.");
+
+                if (apiResponse.Weather == null || apiResponse.Weather.Count == 0)
+                {
+                    throw new Exception("Réponse API incomplète: informations météo absentes.");
+                }
 
                 return new WeatherData
                 {
@@ -92,7 +119,11 @@ namespace WeatherApp.Services
         {
             try
             {
-                string url = $"{BASE_URL}/forecast?q={cityName}&appid={_apiKey}&units=metric&lang=fr";
+                string? apiKey = GetApiKey();
+                EnsureApiKeyConfigured(apiKey);
+
+                string encodedCity = Uri.EscapeDataString(cityName);
+                string url = $"{BASE_URL}/forecast?q={encodedCity}&appid={apiKey}&units=metric&lang=fr";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -101,7 +132,18 @@ namespace WeatherApp.Services
                 }
 
                 string json = await response.Content.ReadAsStringAsync();
-                OpenWeatherForecastResponse apiResponse = JsonConvert.DeserializeObject<OpenWeatherForecastResponse>(json);
+                OpenWeatherForecastResponse apiResponse = JsonConvert.DeserializeObject<OpenWeatherForecastResponse>(json)
+                    ?? throw new Exception("Réponse API invalide pour les prévisions.");
+
+                if (apiResponse.List == null || apiResponse.List.Count == 0)
+                {
+                    throw new Exception("Réponse API incomplète: liste de prévisions absente.");
+                }
+
+                if (apiResponse.City == null)
+                {
+                    throw new Exception("Réponse API incomplète: informations de ville absentes.");
+                }
 
                 var forecastData = new ForecastData
                 {

@@ -5,7 +5,7 @@ namespace WeatherApp.Models
 {
     public class ForecastData
     {
-        public string CityName { get; set; }
+        public string CityName { get; set; } = string.Empty;
         public List<DailyForecast> Forecasts { get; set; } = new List<DailyForecast>();
     }
 
@@ -15,8 +15,8 @@ namespace WeatherApp.Models
         public double TempMin { get; set; }
         public double TempMax { get; set; }
         public double Temp { get; set; }
-        public string Description { get; set; }
-        public string Icon { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
         public int Humidity { get; set; }
         public double WindSpeed { get; set; }
 

@@ -4,8 +4,8 @@ namespace WeatherApp.Models
 {
     public class FavoriteCity
     {
-        public string CityName { get; set; }
-        public string Country { get; set; }
+        public string CityName { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
         public DateTime AddedDate { get; set; }
 
         public string FullName => string.IsNullOrEmpty(Country) ?

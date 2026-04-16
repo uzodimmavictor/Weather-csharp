@@ -13,12 +13,12 @@ namespace WeatherApp.ViewModels
         private readonly WeatherService _weatherService;
         private readonly FavoritesService _favoritesService;
 
-        private string _searchCity;
-        private WeatherData _currentWeather;
-        private ForecastData _forecastData;
+        private string _searchCity = string.Empty;
+        private WeatherData? _currentWeather;
+        private ForecastData? _forecastData;
         private bool _isLoading;
-        private string _errorMessage;
-        private string _statusMessage;
+        private string _errorMessage = string.Empty;
+        private string _statusMessage = string.Empty;
         private bool _isFavorite;
         private bool _isDarkMode;
 
@@ -47,7 +47,7 @@ namespace WeatherApp.ViewModels
             set => SetProperty(ref _searchCity, value);
         }
 
-        public WeatherData CurrentWeather
+        public WeatherData? CurrentWeather
         {
             get => _currentWeather;
             set
@@ -57,7 +57,7 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        public ForecastData ForecastData
+        public ForecastData? ForecastData
         {
             get => _forecastData;
             set => SetProperty(ref _forecastData, value);
@@ -173,7 +173,7 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        private async System.Threading.Tasks.Task LoadFavoriteCityWeatherAsync(FavoriteCity city)
+        private async System.Threading.Tasks.Task LoadFavoriteCityWeatherAsync(FavoriteCity? city)
         {
             if (city == null) return;
 
@@ -181,7 +181,7 @@ namespace WeatherApp.ViewModels
             await SearchWeatherAsync();
         }
 
-        private void DeleteFavorite(FavoriteCity city)
+        private void DeleteFavorite(FavoriteCity? city)
         {
             if (city == null) return;
 

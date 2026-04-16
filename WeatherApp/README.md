@@ -37,6 +37,7 @@ Une application de météo Windows native développée en C# avec WPF pour retro
 3. Alternative: définissez la variable d'environnement `OPENWEATHER_API_KEY`
 
 `appsettings.local.json` est ignoré par Git pour éviter de versionner votre clé API.
+Le fichier est aussi copié dans le dossier de sortie au build, donc l'application peut le lire directement au lancement.
 
 ### Étape 3: Compiler et exécuter
 
