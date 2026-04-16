@@ -38,6 +38,15 @@ packages/
 # Others
 publish/
 
+# Local secrets
+WeatherApp/appsettings.local.json
+WeatherApp/.secrets/
+
+# Common env files
+.env
+.env.*
+!.env.example
+
 # OS Files
 .DS_Store
 Thumbs.db

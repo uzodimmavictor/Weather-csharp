@@ -3,9 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace WeatherApp.Helpers
 {
-    /// <summary>
-    /// Classe de base pour les ViewModels implémentant INotifyPropertyChanged
-    /// </summary>
     public class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

@@ -3,9 +3,6 @@ using System.Windows.Input;
 
 namespace WeatherApp.Helpers
 {
-    /// <summary>
-    /// Implémentation de ICommand pour lier les actions du ViewModel aux contrôles de la vue
-    /// </summary>
     public class RelayCommand : ICommand
     {
         private readonly Action<object> _execute;

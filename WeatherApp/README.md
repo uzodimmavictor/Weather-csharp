@@ -27,11 +27,16 @@ Une application de météo Windows native développée en C# avec WPF pour retro
 
 ### Étape 2: Configurer l'application
 
-1. Ouvrez le fichier `Services/WeatherService.cs`
-2. Remplacez `VOTRE_CLE_API_ICI` par votre clé API à la ligne 15:
-   ```csharp
-   private const string API_KEY = "votre_cle_api_ici";
+1. Copiez `appsettings.local.example.json` en `appsettings.local.json`
+2. Remplacez `votre_cle_api_ici` par votre clé API:
+   ```json
+   {
+     "OpenWeatherApiKey": "votre_cle_api_ici"
+   }
    ```
+3. Alternative: définissez la variable d'environnement `OPENWEATHER_API_KEY`
+
+`appsettings.local.json` est ignoré par Git pour éviter de versionner votre clé API.
 
 ### Étape 3: Compiler et exécuter
 

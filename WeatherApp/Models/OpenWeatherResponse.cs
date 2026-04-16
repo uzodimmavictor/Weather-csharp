@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace WeatherApp.Models
 {
-    /// <summary>
-    /// Modèles pour désérialiser la réponse de l'API OpenWeatherMap
-    /// </summary>
     public class OpenWeatherResponse
     {
         [JsonProperty("coord")]
@@ -87,7 +84,6 @@ namespace WeatherApp.Models
         public string Country { get; set; }
     }
 
-    // Pour les prévisions
     public class OpenWeatherForecastResponse
     {
         [JsonProperty("list")]

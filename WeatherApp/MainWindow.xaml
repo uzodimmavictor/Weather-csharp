@@ -11,19 +11,42 @@
         Height="700"
         Width="1200"
         WindowStartupLocation="CenterScreen"
-        Background="#F0F4F8">
+        Background="{DynamicResource WindowBackgroundBrush}">
 
     <Window.DataContext>
         <viewmodels:MainViewModel/>
     </Window.DataContext>
 
     <Window.Resources>
-        <!-- Converteurs -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- Styles pour les boutons -->
+        <SolidColorBrush x:Key="WindowBackgroundBrush"
+                         Color="#F0F4F8"/>
+        <SolidColorBrush x:Key="CardBackgroundBrush"
+                         Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="PrimaryTextBrush"
+                         Color="#1F2937"/>
+        <SolidColorBrush x:Key="SecondaryTextBrush"
+                         Color="#6B7280"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush"
+                         Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="InputBorderBrush"
+                         Color="#D1D5DB"/>
+        <SolidColorBrush x:Key="SectionBorderBrush"
+                         Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="StatusBackgroundBrush"
+                         Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="StatusTextBrush"
+                         Color="#374151"/>
+        <SolidColorBrush x:Key="ErrorBackgroundBrush"
+                         Color="#FEE2E2"/>
+        <SolidColorBrush x:Key="ErrorTextBrush"
+                         Color="#DC2626"/>
+        <SolidColorBrush x:Key="HoverBackgroundBrush"
+                         Color="#F3F4F6"/>
+
         <Style x:Key="ModernButton"
                TargetType="Button">
             <Setter Property="Background"
@@ -68,7 +91,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Style pour les TextBox -->
         <Style x:Key="ModernTextBox"
                TargetType="TextBox">
             <Setter Property="FontSize"
@@ -76,11 +98,11 @@
             <Setter Property="Padding"
                     Value="12,10"/>
             <Setter Property="BorderBrush"
-                    Value="#D1D5DB"/>
+                    Value="{DynamicResource InputBorderBrush}"/>
             <Setter Property="BorderThickness"
                     Value="2"/>
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{DynamicResource InputBackgroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -103,11 +125,10 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Style pour les cartes -->
         <Style x:Key="CardStyle"
                TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{DynamicResource CardBackgroundBrush}"/>
             <Setter Property="CornerRadius"
                     Value="12"/>
             <Setter Property="Padding"
@@ -121,6 +142,24 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="ThemeToggleButton"
+               TargetType="Button"
+               BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background"
+                    Value="#334155"/>
+            <Setter Property="Content"
+                    Value="🌙 Sombre"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDarkMode}"
+                             Value="True">
+                    <Setter Property="Content"
+                            Value="☀️ Clair"/>
+                    <Setter Property="Background"
+                            Value="#F59E0B"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="20">
@@ -129,7 +168,6 @@
             <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Section principale -->
         <Grid Grid.Column="0"
               Margin="0,0,10,0">
             <Grid.RowDefinitions>
@@ -139,7 +177,6 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- En-tête -->
             <Border Grid.Row="0"
                     Style="{StaticResource CardStyle}"
                     Margin="0,0,0,20">
@@ -147,23 +184,23 @@
                     <TextBlock Text="☀️ Météo Provence"
                                FontSize="32"
                                FontWeight="Bold"
-                               Foreground="#1F2937"
+                               Foreground="{DynamicResource PrimaryTextBrush}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="Retrouvez notre beau soleil de Provence !"
                                FontSize="16"
-                               Foreground="#6B7280"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
 
-            <!-- Barre de recherche -->
             <Border Grid.Row="1"
                     Style="{StaticResource CardStyle}"
                     Margin="0,0,0,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -224,14 +261,17 @@
                             </Style>
                         </Button.Style>
                     </Button>
+
+                    <Button Grid.Column="4"
+                            Style="{StaticResource ThemeToggleButton}"
+                            Command="{Binding ToggleThemeCommand}"
+                            Margin="10,0,0,0"/>
                 </Grid>
             </Border>
 
-            <!-- Zone de contenu principal -->
             <ScrollViewer Grid.Row="2"
                           VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <!-- Message de chargement -->
                     <Border Style="{StaticResource CardStyle}"
                             Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Margin="0,0,0,20">
@@ -239,23 +279,21 @@
                                     VerticalAlignment="Center">
                             <TextBlock Text="⏳ Chargement en cours..."
                                        FontSize="18"
-                                       Foreground="#6B7280"
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Message d'erreur -->
                     <Border Style="{StaticResource CardStyle}"
-                            Background="#FEE2E2"
+                            Background="{DynamicResource ErrorBackgroundBrush}"
                             Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
                             Margin="0,0,0,20">
                         <TextBlock Text="{Binding ErrorMessage}"
                                    FontSize="14"
-                                   Foreground="#DC2626"
+                                   Foreground="{DynamicResource ErrorTextBrush}"
                                    TextWrapping="Wrap"/>
                     </Border>
 
-                    <!-- Météo actuelle -->
                     <Border Style="{StaticResource CardStyle}"
                             Visibility="{Binding CurrentWeather, Converter={StaticResource NullToVisibilityConverter}}"
                             Margin="0,0,0,20">
@@ -266,23 +304,21 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Ville et pays -->
                             <StackPanel Grid.Row="0"
                                         HorizontalAlignment="Center">
                                 <TextBlock FontSize="28"
                                            FontWeight="Bold"
-                                           Foreground="#1F2937">
+                                           Foreground="{DynamicResource PrimaryTextBrush}">
                                     <Run Text="{Binding CityName}"/>
                                     <Run Text=", "/>
                                     <Run Text="{Binding Country}"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding DateTime, StringFormat='dd/MM/yyyy HH:mm'}"
                                            FontSize="14"
-                                           Foreground="#6B7280"
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
                                            HorizontalAlignment="Center"/>
                             </StackPanel>
 
-                            <!-- Température et description -->
                             <StackPanel Grid.Row="1"
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Center"
@@ -295,63 +331,62 @@
                                             VerticalAlignment="Center">
                                     <TextBlock Text="{Binding DescriptionCapitalized}"
                                                FontSize="20"
-                                               Foreground="#1F2937"/>
+                                               Foreground="{DynamicResource PrimaryTextBrush}"/>
                                     <TextBlock FontSize="14"
-                                               Foreground="#6B7280">
+                                               Foreground="{DynamicResource SecondaryTextBrush}">
                                         <Run Text="Ressenti: "/>
                                         <Run Text="{Binding FeelsLike, StringFormat={}{0:F0}°C}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Détails -->
                             <UniformGrid Grid.Row="2"
                                          Columns="4"
                                          Margin="0,30,0,0">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="💧 Humidité"
                                                FontSize="14"
-                                               Foreground="#6B7280"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"
                                                HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding Humidity, StringFormat={}{0}%}"
                                                FontSize="20"
                                                FontWeight="Bold"
-                                               Foreground="#1F2937"
+                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                                HorizontalAlignment="Center"
                                                Margin="0,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="💨 Vent"
                                                FontSize="14"
-                                               Foreground="#6B7280"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"
                                                HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding WindSpeed, StringFormat={}{0:F1} m/s}"
                                                FontSize="20"
                                                FontWeight="Bold"
-                                               Foreground="#1F2937"
+                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                                HorizontalAlignment="Center"
                                                Margin="0,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="📊 Pression"
                                                FontSize="14"
-                                               Foreground="#6B7280"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"
                                                HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding Pressure, StringFormat={}{0} hPa}"
                                                FontSize="20"
                                                FontWeight="Bold"
-                                               Foreground="#1F2937"
+                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                                HorizontalAlignment="Center"
                                                Margin="0,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="🌡️ Min/Max"
                                                FontSize="14"
-                                               Foreground="#6B7280"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"
                                                HorizontalAlignment="Center"/>
                                     <TextBlock FontSize="20"
                                                FontWeight="Bold"
-                                               Foreground="#1F2937"
+                                               Foreground="{DynamicResource PrimaryTextBrush}"
                                                HorizontalAlignment="Center"
                                                Margin="0,5,0,0">
                                         <Run Text="{Binding TempMin, StringFormat={}{0:F0}°}"/>
@@ -363,20 +398,19 @@
                         </Grid>
                     </Border>
 
-                    <!-- Prévisions -->
                     <Border Style="{StaticResource CardStyle}"
                             Visibility="{Binding ForecastData, Converter={StaticResource NullToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="📅 Prévisions sur 5 jours"
                                        FontSize="20"
                                        FontWeight="Bold"
-                                       Foreground="#1F2937"
+                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                        Margin="0,0,0,15"/>
 
                             <ItemsControl ItemsSource="{Binding ForecastData.Forecasts}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="#E5E7EB"
+                                        <Border BorderBrush="{DynamicResource SectionBorderBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 Padding="0,10">
                                             <Grid>
@@ -391,22 +425,22 @@
                                                     <TextBlock Text="{Binding DayName}"
                                                                FontSize="16"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#1F2937"/>
+                                                               Foreground="{DynamicResource PrimaryTextBrush}"/>
                                                     <TextBlock Text="{Binding DateDisplay}"
                                                                FontSize="12"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{DynamicResource SecondaryTextBrush}"/>
                                                 </StackPanel>
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding Description}"
                                                            FontSize="14"
-                                                           Foreground="#6B7280"
+                                                           Foreground="{DynamicResource SecondaryTextBrush}"
                                                            VerticalAlignment="Center"/>
 
                                                 <TextBlock Grid.Column="2"
                                                            Text="{Binding TempRangeDisplay}"
                                                            FontSize="14"
-                                                           Foreground="#6B7280"
+                                                           Foreground="{DynamicResource SecondaryTextBrush}"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,20,0"/>
 
@@ -426,20 +460,18 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Barre de statut -->
             <Border Grid.Row="3"
-                    Background="#E5E7EB"
+                    Background="{DynamicResource StatusBackgroundBrush}"
                     CornerRadius="8"
                     Padding="15,10"
                     Margin="0,20,0,0"
                     Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <TextBlock Text="{Binding StatusMessage}"
                            FontSize="14"
-                           Foreground="#374151"/>
+                           Foreground="{DynamicResource StatusTextBrush}"/>
             </Border>
         </Grid>
 
-        <!-- Barre latérale des favoris -->
         <Border Grid.Column="1"
                 Style="{StaticResource CardStyle}">
             <Grid>
@@ -448,21 +480,19 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Titre des favoris -->
                 <TextBlock Grid.Row="0"
                            Text="⭐ Villes Favorites"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="#1F2937"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
                            Margin="0,0,0,15"/>
 
-                <!-- Liste des favoris -->
                 <ScrollViewer Grid.Row="1"
                               VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding FavoriteCities}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="#E5E7EB"
+                                <Border BorderBrush="{DynamicResource SectionBorderBrush}"
                                         BorderThickness="0,0,0,1"
                                         Padding="0,10"
                                         Cursor="Hand">
@@ -482,10 +512,10 @@
                                             <TextBlock Text="{Binding CityName}"
                                                        FontSize="16"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#1F2937"/>
+                                                       Foreground="{DynamicResource PrimaryTextBrush}"/>
                                             <TextBlock Text="{Binding Country}"
                                                        FontSize="12"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{DynamicResource SecondaryTextBrush}"/>
                                         </StackPanel>
 
                                         <Button Grid.Column="1"
@@ -504,7 +534,7 @@
                                                 <Trigger Property="IsMouseOver"
                                                          Value="True">
                                                     <Setter Property="Background"
-                                                            Value="#F3F4F6"/>
+                                                            Value="{DynamicResource HoverBackgroundBrush}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>

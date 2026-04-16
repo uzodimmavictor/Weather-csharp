@@ -5,9 +5,6 @@ using System.Windows.Data;
 
 namespace WeatherApp.Helpers
 {
-    /// <summary>
-    /// Convertit une chaîne non vide en Visible, sinon Collapsed
-    /// </summary>
     public class StringToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -21,9 +18,6 @@ namespace WeatherApp.Helpers
         }
     }
 
-    /// <summary>
-    /// Convertit un objet non null en Visible, sinon Collapsed
-    /// </summary>
     public class NullToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

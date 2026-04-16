@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using WeatherApp.Models;
@@ -8,28 +10,52 @@ using System.Linq;
 
 namespace WeatherApp.Services
 {
-    /// <summary>
-    /// Service pour récupérer les données météo depuis l'API OpenWeatherMap
-    /// </summary>
     public class WeatherService
     {
         private readonly HttpClient _httpClient;
-        private const string API_KEY = "6ea912c9d04e761d343cb0529f3f7242"; // À remplacer par votre clé API
+        private readonly string _apiKey;
         private const string BASE_URL = "https://api.openweathermap.org/data/2.5";
 
         public WeatherService()
         {
             _httpClient = new HttpClient();
+            _apiKey = LoadApiKey();
         }
 
-        /// <summary>
-        /// Récupère la météo actuelle pour une ville
-        /// </summary>
+        private string LoadApiKey()
+        {
+            string? apiKey = Environment.GetEnvironmentVariable("OPENWEATHER_API_KEY");
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.local.json");
+
+                if (File.Exists(configPath))
+                {
+                    string configJson = File.ReadAllText(configPath);
+                    using JsonDocument doc = JsonDocument.Parse(configJson);
+
+                    if (doc.RootElement.TryGetProperty("OpenWeatherApiKey", out JsonElement keyElement))
+                    {
+                        apiKey = keyElement.GetString();
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new InvalidOperationException(
+                    "Clé API manquante. Définissez OPENWEATHER_API_KEY ou créez appsettings.local.json avec OpenWeatherApiKey.");
+            }
+
+            return apiKey;
+        }
+
         public async Task<WeatherData> GetCurrentWeatherAsync(string cityName)
         {
             try
             {
-                string url = $"{BASE_URL}/weather?q={cityName}&appid={API_KEY}&units=metric&lang=fr";
+                string url = $"{BASE_URL}/weather?q={cityName}&appid={_apiKey}&units=metric&lang=fr";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -69,7 +95,7 @@ namespace WeatherApp.Services
         {
             try
             {
-                string url = $"{BASE_URL}/forecast?q={cityName}&appid={API_KEY}&units=metric&lang=fr";
+                string url = $"{BASE_URL}/forecast?q={cityName}&appid={_apiKey}&units=metric&lang=fr";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -85,7 +111,6 @@ namespace WeatherApp.Services
                     CityName = apiResponse.City.Name
                 };
 
-                // Grouper par jour et prendre une prévision par jour (à midi)
                 var dailyForecasts = apiResponse.List
                     .GroupBy(f => DateTimeOffset.FromUnixTimeSeconds(f.Dt).Date)
                     .Select(g => g.OrderBy(f => Math.Abs(DateTimeOffset.FromUnixTimeSeconds(f.Dt).Hour - 12)).First())
@@ -113,9 +138,6 @@ namespace WeatherApp.Services
             }
         }
 
-        /// <summary>
-        /// Récupère l'URL de l'icône météo
-        /// </summary>
         public string GetWeatherIconUrl(string iconCode)
         {
             return $"https://openweathermap.org/img/wn/{iconCode}@2x.png";

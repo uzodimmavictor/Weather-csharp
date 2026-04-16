@@ -8,9 +8,6 @@ using WeatherApp.Services;
 
 namespace WeatherApp.ViewModels
 {
-    /// <summary>
-    /// ViewModel principal pour la fenêtre principale
-    /// </summary>
     public class MainViewModel : ViewModelBase
     {
         private readonly WeatherService _weatherService;
@@ -24,6 +21,7 @@ namespace WeatherApp.ViewModels
         private string _errorMessage;
         private string _statusMessage;
         private bool _isFavorite;
+        private bool _isDarkMode;
 
         public MainViewModel()
         {
@@ -32,14 +30,13 @@ namespace WeatherApp.ViewModels
 
             FavoriteCities = new ObservableCollection<FavoriteCity>();
 
-            // Initialiser les commandes
             SearchCommand = new RelayCommand(async _ => await SearchWeatherAsync(), _ => !string.IsNullOrWhiteSpace(SearchCity) && !IsLoading);
             AddToFavoritesCommand = new RelayCommand(_ => AddToFavorites(), _ => CurrentWeather != null && !IsFavorite);
             RemoveFromFavoritesCommand = new RelayCommand(_ => RemoveFromFavorites(), _ => CurrentWeather != null && IsFavorite);
             LoadFavoriteCityCommand = new RelayCommand(async city => await LoadFavoriteCityWeatherAsync(city as FavoriteCity));
             DeleteFavoriteCommand = new RelayCommand(city => DeleteFavorite(city as FavoriteCity));
+            ToggleThemeCommand = new RelayCommand(_ => ToggleTheme());
 
-            // Charger les favoris au démarrage
             LoadFavorites();
         }
 
@@ -91,6 +88,12 @@ namespace WeatherApp.ViewModels
             set => SetProperty(ref _isFavorite, value);
         }
 
+        public bool IsDarkMode
+        {
+            get => _isDarkMode;
+            set => SetProperty(ref _isDarkMode, value);
+        }
+
         public ObservableCollection<FavoriteCity> FavoriteCities { get; }
 
         #endregion
@@ -102,6 +105,7 @@ namespace WeatherApp.ViewModels
         public ICommand RemoveFromFavoritesCommand { get; }
         public ICommand LoadFavoriteCityCommand { get; }
         public ICommand DeleteFavoriteCommand { get; }
+        public ICommand ToggleThemeCommand { get; }
 
         #endregion
 
@@ -118,10 +122,8 @@ namespace WeatherApp.ViewModels
 
             try
             {
-                // Récupérer la météo actuelle
                 CurrentWeather = await _weatherService.GetCurrentWeatherAsync(SearchCity);
 
-                // Récupérer les prévisions
                 ForecastData = await _weatherService.GetForecastAsync(SearchCity);
 
                 StatusMessage = $"Météo chargée pour {CurrentWeather.CityName}";
@@ -140,9 +142,6 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Ajouter la ville actuelle aux favoris
-        /// </summary>
         private void AddToFavorites()
         {
             if (CurrentWeather == null) return;
@@ -161,9 +160,6 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Retirer la ville actuelle des favoris
-        /// </summary>
         private void RemoveFromFavorites()
         {
             if (CurrentWeather == null) return;
@@ -178,9 +174,6 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Charger la météo pour une ville favorite
-        /// </summary>
         private async System.Threading.Tasks.Task LoadFavoriteCityWeatherAsync(FavoriteCity city)
         {
             if (city == null) return;
@@ -189,9 +182,6 @@ namespace WeatherApp.ViewModels
             await SearchWeatherAsync();
         }
 
-        /// <summary>
-        /// Supprimer une ville des favoris
-        /// </summary>
         private void DeleteFavorite(FavoriteCity city)
         {
             if (city == null) return;
@@ -211,9 +201,12 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Charger la liste des villes favorites
-        /// </summary>
+        private void ToggleTheme()
+        {
+            IsDarkMode = !IsDarkMode;
+            StatusMessage = IsDarkMode ? "Mode sombre activé" : "Mode clair activé";
+        }
+
         private void LoadFavorites()
         {
             FavoriteCities.Clear();
@@ -225,9 +218,6 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Mettre à jour le statut de favori pour la ville actuelle
-        /// </summary>
         private void UpdateFavoriteStatus()
         {
             if (CurrentWeather != null)
@@ -240,9 +230,6 @@ namespace WeatherApp.ViewModels
             }
         }
 
-        /// <summary>
-        /// Initialiser l'application en chargeant le premier favori
-        /// </summary>
         public async System.Threading.Tasks.Task InitializeAsync()
         {
             if (FavoriteCities.Count > 0)

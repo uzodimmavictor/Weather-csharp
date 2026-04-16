@@ -7,9 +7,6 @@ using WeatherApp.Models;
 
 namespace WeatherApp.Services
 {
-    /// <summary>
-    /// Service pour gérer les villes favorites
-    /// </summary>
     public class FavoritesService
     {
         private readonly string _favoritesFilePath;
@@ -17,11 +14,9 @@ namespace WeatherApp.Services
 
         public FavoritesService()
         {
-            // Sauvegarder les favoris dans le dossier AppData de l'utilisateur
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string appFolder = Path.Combine(appDataPath, "WeatherApp");
 
-            // Créer le dossier s'il n'existe pas
             if (!Directory.Exists(appFolder))
             {
                 Directory.CreateDirectory(appFolder);
@@ -33,9 +28,6 @@ namespace WeatherApp.Services
             LoadFavorites();
         }
 
-        /// <summary>
-        /// Charger les favoris depuis le fichier
-        /// </summary>
         private void LoadFavorites()
         {
             try
@@ -53,9 +45,6 @@ namespace WeatherApp.Services
             }
         }
 
-        /// <summary>
-        /// Sauvegarder les favoris dans le fichier
-        /// </summary>
         private void SaveFavorites()
         {
             try
@@ -69,22 +58,16 @@ namespace WeatherApp.Services
             }
         }
 
-        /// <summary>
-        /// Obtenir toutes les villes favorites
-        /// </summary>
         public List<FavoriteCity> GetFavorites()
         {
             return _favorites.OrderBy(f => f.CityName).ToList();
         }
 
-        /// <summary>
-        /// Ajouter une ville aux favoris
-        /// </summary>
         public bool AddFavorite(string cityName, string country)
         {
             if (IsFavorite(cityName))
             {
-                return false; // Déjà dans les favoris
+                return false;
             }
 
             _favorites.Add(new FavoriteCity
@@ -98,9 +81,6 @@ namespace WeatherApp.Services
             return true;
         }
 
-        /// <summary>
-        /// Retirer une ville des favoris
-        /// </summary>
         public bool RemoveFavorite(string cityName)
         {
             var favorite = _favorites.FirstOrDefault(f =>
@@ -116,18 +96,12 @@ namespace WeatherApp.Services
             return false;
         }
 
-        /// <summary>
-        /// Vérifier si une ville est dans les favoris
-        /// </summary>
         public bool IsFavorite(string cityName)
         {
             return _favorites.Any(f =>
                 f.CityName.Equals(cityName, StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>
-        /// Effacer tous les favoris
-        /// </summary>
         public void ClearFavorites()
         {
             _favorites.Clear();
